@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动起来canvas</title>
+</head>
+<body>
+    <div style="display: flex;justify-content: center;">
+        <canvas id="canvas"><img src="./img/orangutan.png" alt="" id="imga"></canvas>
+    </div>
+</body>
+<script>
+    
+    class init {
+        constructor() {
+          this.canvas = document.querySelector('#canvas')
+          this.canvas.width = window.innerWidth*0.8
+          this.canvas.height = window.innerHeight*0.8
+          this.ctx = canvas.getContext('2d')
+          this.dots = []
+          this.animations = []
+          this.pointSize = 2
+          this.initImg()
+        }
+        initImg() {
+          this.img = document.querySelector('#imga')
+          this.img.onload = ()=>{
+            let canvasWidth = this.canvas.width*0.6
+            let width = this.img.width
+            this.img.width = (width > canvasWidth) ? canvasWidth : width
+            this.ctx.drawImage(this.img,(this.canvas.width-this.img.width)/2,(this.canvas.height-this.img.height)/2,this.img.width,this.img.height)
+          }
+        }
+        getimgData() {
+            let imgdata = this.ctx.getImageData((this.canvas.width-this.img.width)/2,(this.canvas.height-this.img.height)/2,this.img.width,this.img.height)
+            this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height)
+            for(let x=0; x<imgdata.width; x+=this.pointSize) {
+                for(let y=0;y<imgdata.height;y+=this.pointSize) {
+                    let i = (y*imgdata.width + x)*4
+                    if(imgdata[i+3] >= 125){
+                        
+                        this.dots.push()
+                    }
+                }
+            }
+        }
+        /**
+         * x,y 当前的位置
+         * ex,ey 原始的位置
+         * tx,ty 目标位置
+         * vx 水平速度
+         * vy 垂直速度
+         * a 和加速度
+         * color 粒子颜色
+         * maxCheckTimes 判断粒子是否静止次数
+         * checkLength 判断粒子是否静止距离
+         * checkTimes 当前的检查次数
+         * stop 是否停止
+        */
+        pointProto() {
+
+        }
+    }
+    let canvasAni = new init()
+</script>
+</html>
