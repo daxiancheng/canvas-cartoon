@@ -22,6 +22,10 @@
           this.dots = []
           this.animations = []
           this.pointSize = 2
+          this.maxCheckTimes = 10
+          this.checkLength = 6
+          this.a = 1500
+          this.oldColor = ''
           this.initImg()
         }
         initImg() {
@@ -40,7 +44,16 @@
                 for(let y=0;y<imgdata.height;y+=this.pointSize) {
                     let i = (y*imgdata.width + x)*4
                     if(imgdata[i+3] >= 125){
-                        
+                        let color = 'rgba('+imgdata[i]+','+imgdata[i+1]+','+imgdata[i+2]+','+imgdata[i+3]+')'
+                        let randomX = x + Math.random()*20
+                        let vx = -Math.random()*200 + 400
+                        let randomY = y - Math.random()*20 + 40
+                        let vy
+                        if (randomY>y) {
+                            vy = Math.random()*300
+                        } else {
+                            vy = -Math.random()*300
+                        }
                         this.dots.push()
                     }
                 }
@@ -59,9 +72,19 @@
          * checkTimes 当前的检查次数
          * stop 是否停止
         */
-        pointProto() {
-
+        pointProto(x,y,ex,ey,tx,ty,vx,vy,color,checkTimes,stop) {
+            return {
+                x,y,ex,ey,tx,ty,vx,vy,color,checkTimes:0,stop:false
+            }
         }
+        drawColor (x,y,ex,ey,tx,ty,vx,vy,color,checkTimes,stop) {
+            if(this.oldColor != color){
+                this.ctx.fillStyle(color)
+                this.oldColor = color
+            }
+            this.ctx.fillRect(x - this.pointSize/2, y - this.pointSize/2,this.pointSize,this.pointSize)
+        }
+
     }
     let canvasAni = new init()
 </script>
