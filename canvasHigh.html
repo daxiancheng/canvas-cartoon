@@ -1,63 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>动起来canvas</title>
 </head>
+
 <body>
     <div style="display: flex;justify-content: center;">
         <canvas id="canvas"><img src="./img/orangutan.png" alt="" id="imga"></canvas>
     </div>
 </body>
 <script>
-    
+
     class init {
         constructor() {
-          this.canvas = document.querySelector('#canvas')
-          this.canvas.width = window.innerWidth*0.8
-          this.canvas.height = window.innerHeight*0.8
-          this.ctx = canvas.getContext('2d')
-          this.dots = []
-          this.animations = []
-          this.pointSize = 2
-          this.maxCheckTimes = 10
-          this.checkLength = 6
-          this.a = 1500
-          this.oldColor = ''
-          this.initImg()
+            this.canvas = document.querySelector('#canvas')
+            this.canvas.width = window.innerWidth * 0.8
+            this.canvas.height = window.innerHeight * 0.8
+            this.ctx = canvas.getContext('2d')
+            this.dots = []
+            this.animations = []
+            this.pointSize = 2
+            this.maxCheckTimes = 10
+            this.checkLength = 6
+            // 合加速度的绝对值
+            this.a = 1500
+            this.oldColor = ''
+            // 每一帧的毫秒数
+            this.tickTime = 16
+            this.initImg()
         }
         initImg() {
-          this.img = document.querySelector('#imga')
-          this.img.onload = ()=>{
-            let canvasWidth = this.canvas.width*0.6
-            let width = this.img.width
-            this.img.width = (width > canvasWidth) ? canvasWidth : width
-            this.ctx.drawImage(this.img,(this.canvas.width-this.img.width)/2,(this.canvas.height-this.img.height)/2,this.img.width,this.img.height)
-          }
+            this.img = document.querySelector('#imga')
+            this.img.onload = () => {
+                let canvasWidth = this.canvas.width * 0.6
+                let width = this.img.width
+                this.img.width = (width > canvasWidth) ? canvasWidth : width
+                this.ctx.drawImage(this.img, (this.canvas.width - this.img.width) / 2, (this.canvas.height - this.img.height) / 2, this.img.width, this.img.height)
+                this.getimgData()
+            }
         }
         getimgData() {
-            let imgdata = this.ctx.getImageData((this.canvas.width-this.img.width)/2,(this.canvas.height-this.img.height)/2,this.img.width,this.img.height)
-            this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height)
-            for(let x=0; x<imgdata.width; x+=this.pointSize) {
-                for(let y=0;y<imgdata.height;y+=this.pointSize) {
-                    let i = (y*imgdata.width + x)*4
-                    if(imgdata[i+3] >= 125){
-                        let color = 'rgba('+imgdata[i]+','+imgdata[i+1]+','+imgdata[i+2]+','+imgdata[i+3]+')'
-                        let randomX = x + Math.random()*20
-                        let vx = -Math.random()*200 + 400
-                        let randomY = y - Math.random()*20 + 40
+            let imgdata = this.ctx.getImageData((this.canvas.width - this.img.width) / 2, (this.canvas.height - this.img.height) / 2, this.img.width, this.img.height)
+            console.log('imgdata', imgdata)
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+            for (let x = 0; x < imgdata.width; x += this.pointSize) {
+                for (let y = 0; y < imgdata.height; y += this.pointSize) {
+                    let i = (y * imgdata.width + x) * 4
+                    if (imgdata.data[i + 3] >= 125) {
+                        let color = 'rgba(' + imgdata.data[i] + ',' + imgdata.data[i + 1] + ',' + imgdata.data[i + 2] + ',' + imgdata.data[i + 3] + ')'
+                        let randomX = x + Math.random() * 20
+                        let vx = -Math.random() * 200 + 400
+                        let randomY = y - Math.random() * 20 + 40
                         let vy
-                        if (randomY>y) {
-                            vy = Math.random()*300
+                        if (randomY > y) {
+                            vy = Math.random() * 300
                         } else {
-                            vy = -Math.random()*300
+                            vy = -Math.random() * 300
                         }
-                        this.dots.push()
+                        this.dots.push(this.pointProto({
+                            x: (this.canvas.width - this.img.width) / 2 + randomX,
+                            y: (this.canvas.height - this.img.height) / 2 + randomY,
+                            ex: (this.canvas.width - this.img.width) / 2,
+                            ey: (this.canvas.height - this.img.height) / 2,
+                            tx: (this.canvas.width - this.img.width) / 2,
+                            ty: (this.canvas.height - this.img.height) / 2,
+                            vx,
+                            vy,
+                            color
+                        }))
+                        this.drawColor(this.dots[this.dots.length-1])
                     }
                 }
             }
+
         }
         /**
          * x,y 当前的位置
@@ -72,20 +91,60 @@
          * checkTimes 当前的检查次数
          * stop 是否停止
         */
-        pointProto(x,y,ex,ey,tx,ty,vx,vy,color,checkTimes,stop) {
+        pointProto(option) {
             return {
-                x,y,ex,ey,tx,ty,vx,vy,color,checkTimes:0,stop:false
+                x: option.x,
+                y: option.y,
+                ex: option.ex,
+                ey: option.ey,
+                tx: option.tx,
+                ty: option.ty,
+                vx: option.vx,
+                vy: option.vy,
+                color: option.color,
+                checkTimes: 0,
+                stop: false
             }
         }
-        drawColor (x,y,ex,ey,tx,ty,vx,vy,color,checkTimes,stop) {
-            if(this.oldColor != color){
-                this.ctx.fillStyle(color)
-                this.oldColor = color
+        drawColor(option) {
+            if (this.oldColor != option.color) {
+                this.ctx.fillStyle = option.color
+                this.oldColor = option.color
             }
-            this.ctx.fillRect(x - this.pointSize/2, y - this.pointSize/2,this.pointSize,this.pointSize)
+            this.ctx.fillRect(option.x - this.pointSize / 2, option.y - this.pointSize / 2, this.pointSize, this.pointSize)
         }
-
+        // 设置粒子的x,y
+        pointmove(option) {
+            if(option.stop){
+                option.x = option.tx
+                option.y = option.ty
+            } else {
+                let sx = Math.abs(option.tx - option.x)
+                let sy = Math.abs(option.ty - option.y)
+                // 算出垂直方向夹角弧度值
+                let rab = Math.atan(sy/sx)
+                let ax = this.a*Math.sin(rab)
+                let ay = this.a*Math.cos(rab)
+                ax = option.tx - option.x > 0 ? ax : -ax
+                ay = option.ty - option.y > 0 ? ay : -ay
+                // 模拟能量损耗，粒子才会减速
+                option.vx = (option.vx + ax*this.tickTime)*0.95
+                option.vy = (option.vy + ay*this.tickTime)*0.95
+                option.x = option.vx*this.tickTime
+                option.y = option.vy*this.tickTime
+                // 检测粒子当前距离和目标距离是否连续10次都小于设置的最小距离，是则看作静止
+                if(Math.abs(option.tx - option.x)<=this.checkLength && Math.abs(option.ty - option.y)<=this.checkLength){
+                    option.checkTimes++
+                    if(option.checkTimes>=this.maxCheckTimes){
+                        option.stop = true
+                    }
+                } else {
+                    option.checkTimes = 0
+                }
+            }
+        }
     }
     let canvasAni = new init()
 </script>
+
 </html>
