@@ -133,7 +133,8 @@
             } else {
                 let sx = Math.abs(option.tx - option.x)
                 let sy = Math.abs(option.ty - option.y)
-                // 算出垂直方向夹角弧度值,x = tant,则t = Math.atanx
+                // 算出水平方向夹角弧度值,x = tant,则t = Math.atanx
+                // 反正切和余切，傻傻搞不清楚...
                 let rab = Math.atan(sy / sx)
                 let ax = Math.abs(this.a * Math.cos(rab))
                 let ay = Math.abs(this.a * Math.sin(rab))
