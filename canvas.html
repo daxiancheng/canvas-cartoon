@@ -31,7 +31,6 @@
             // stats.domElement.style.right = '0px';
             // stats.domElement.style.top = '0px';
             // document.body.appendChild(stats.domElement);
-            this.initImg()
         }
         initImg() {
             let img = document.querySelector('#imga')
@@ -40,25 +39,25 @@
                 this.imgx = (this.canvas.width - img.width) / 2;
                 this.imgy = (this.canvas.height - img.height) / 2;
                 this.ctx.drawImage(img, this.imgx, this.imgy, img.width, img.height)
-                let imgData = this.ctx.getImageData(this.imgx,this.imgy,img.width , img.height)
+                let imgData = this.ctx.getImageData(this.imgx, this.imgy, img.width, img.height)
                 console.log('imgData', imgData)
                 this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                for(let x=0;x<imgData.width;x+=2){
-                    for(let y=0;y<imgData.height;y+=2){
+                for (let x = 0; x < imgData.width; x += 2) {
+                    for (let y = 0; y < imgData.height; y += 2) {
                         // 判断rgba的a值, 过滤掉不透明点
-                        let i = (y*imgData.width+x)*4
-                        if(imgData.data[i+3]>=125){
+                        let i = (y * imgData.width + x) * 4
+                        if (imgData.data[i + 3] >= 125) {
                             let color = "rgba(" + imgData.data[i] + "," + imgData.data[i + 1] + "," + imgData.data[i + 2] + "," + imgData.data[i + 3] + ")";
                             let a = this.imgx + x
                             let b = this.imgy + y
-                            let point = this.Particle(a,b,1,color)
+                            let point = this.Particle(a, b, 1, color)
                             this.particleArray.push(point)
                         }
                     }
                 }
                 let that = this
-                this.particleArray.forEach(item=>{
-                    window.requestAnimationFrame(()=>{
+                this.particleArray.forEach(item => {
+                    window.requestAnimationFrame(() => {
                         that.point(item)
                     })
                     // that.point(item)
@@ -75,14 +74,14 @@
          * x2, y2, z2:当前的位置
          * x3, y3, z3:随机的位置
         */
-        Particle(x, y, z,color) {
+        Particle(x, y, z, color) {
             return { x1: x, y1: y, z1: z, x2: x, y2: y, z2: z, x3: 0, y3: 0, z3: 0.8, color }
         }
         point(point) {
             this.ctx.save()
             this.ctx.beginPath();
             let scale = point.z2
-            this.ctx.arc(this.canvas.width/2 + (point.x2-this.canvas.width/2)*scale , this.canvas.height/2 + (point.y2-this.canvas.height/2) * scale, 1 , 0 , 2*Math.PI);
+            this.ctx.arc(this.canvas.width / 2 + (point.x2 - this.canvas.width / 2) * scale, this.canvas.height / 2 + (point.y2 - this.canvas.height / 2) * scale, 1, 0, 2 * Math.PI);
             this.ctx.fillStyle = point.color
             this.ctx.fill()
             this.ctx.restore();
@@ -90,10 +89,10 @@
         converge() {
             let that = this
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.particleArray.forEach((item)=>{
+            this.particleArray.forEach((item) => {
                 let point = {}
-                point.x2 = Math.random()*this.canvas.width
-                point.y2 = Math.random()*this.canvas.height
+                point.x2 = Math.random() * this.canvas.width
+                point.y2 = Math.random() * this.canvas.height
                 point.z2 = item.z3
                 point.color = item.color
                 that.point(point)
@@ -102,10 +101,10 @@
                 // })
             })
         }
-        scatter(){
+        scatter() {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             let that = this
-            this.particleArray.forEach((item)=>{
+            this.particleArray.forEach((item) => {
                 let point = {}
                 point.x2 = item.x1
                 point.y2 = item.y1
@@ -116,10 +115,10 @@
         }
     }
     let canvasAni = new canvasAnimate()
-    document.querySelector('#tuisan').onclick = function() {
+    document.querySelector('#tuisan').onclick = function () {
         canvasAni.converge()
     }
-    document.querySelector('#juhe').onclick = function() {
+    document.querySelector('#juhe').onclick = function () {
         canvasAni.scatter()
     }
 </script>

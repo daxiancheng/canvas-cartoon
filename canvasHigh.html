@@ -13,6 +13,7 @@
         <canvas id="canvas"><img src="./img/orangutan.png" alt="" id="imga"></canvas>
     </div>
 </body>
+<script src="./public/stats.min.js"></script>
 <script>
 
     class init {
@@ -25,12 +26,22 @@
             this.animations = []
             this.pointSize = 2
             this.maxCheckTimes = 10
-            this.checkLength = 6
+            this.checkLength = 5
             // 合加速度的绝对值
             this.a = 1500
             this.oldColor = ''
             // 每一帧的毫秒数
-            this.tickTime = 16
+            this.tickTime = 16 / 1000
+            this.start = 0
+            this.end = 100
+            this.addNum = 100
+            this.stats = new Stats();
+            this.stats.setMode(0);
+            this.stats.domElement.style.position = 'absolute';
+            this.stats.domElement.style.right = '0px';
+            this.stats.domElement.style.top = '0px';
+            document.body.appendChild(this.stats.domElement);
+            this.initImg()
             this.initImg()
         }
         initImg() {
@@ -41,6 +52,7 @@
                 this.img.width = (width > canvasWidth) ? canvasWidth : width
                 this.ctx.drawImage(this.img, (this.canvas.width - this.img.width) / 2, (this.canvas.height - this.img.height) / 2, this.img.width, this.img.height)
                 this.getimgData()
+                this.initAnimat()
             }
         }
         getimgData() {
@@ -54,25 +66,25 @@
                         let color = 'rgba(' + imgdata.data[i] + ',' + imgdata.data[i + 1] + ',' + imgdata.data[i + 2] + ',' + imgdata.data[i + 3] + ')'
                         let randomX = x + Math.random() * 20
                         let vx = -Math.random() * 200 + 400
-                        let randomY = y - Math.random() * 20 + 40
+                        let randomY = y - Math.random() * 40 + 20
                         let vy
                         if (randomY > y) {
-                            vy = Math.random() * 300
+                            vy = -Math.random() * 300 
                         } else {
-                            vy = -Math.random() * 300
+                            vy = Math.random() * 300 
                         }
                         this.dots.push(this.pointProto({
                             x: (this.canvas.width - this.img.width) / 2 + randomX,
                             y: (this.canvas.height - this.img.height) / 2 + randomY,
-                            ex: (this.canvas.width - this.img.width) / 2,
-                            ey: (this.canvas.height - this.img.height) / 2,
-                            tx: (this.canvas.width - this.img.width) / 2,
-                            ty: (this.canvas.height - this.img.height) / 2,
+                            ex: (this.canvas.width - this.img.width) / 2 + x,
+                            ey: (this.canvas.height - this.img.height) / 2 + y,
+                            tx: (this.canvas.width - this.img.width) / 2 + x,
+                            ty: (this.canvas.height - this.img.height) / 2+y,
                             vx,
                             vy,
                             color
                         }))
-                        this.drawColor(this.dots[this.dots.length-1])
+                        this.drawColor(this.dots[this.dots.length - 1])
                     }
                 }
             }
@@ -115,27 +127,27 @@
         }
         // 设置粒子的x,y
         pointmove(option) {
-            if(option.stop){
+            if (option.stop) {
                 option.x = option.tx
                 option.y = option.ty
             } else {
                 let sx = Math.abs(option.tx - option.x)
                 let sy = Math.abs(option.ty - option.y)
-                // 算出垂直方向夹角弧度值
-                let rab = Math.atan(sy/sx)
-                let ax = this.a*Math.sin(rab)
-                let ay = this.a*Math.cos(rab)
-                ax = option.tx - option.x > 0 ? ax : -ax
-                ay = option.ty - option.y > 0 ? ay : -ay
+                // 算出垂直方向夹角弧度值,x = tant,则t = Math.atanx
+                let rab = Math.atan(sy / sx)
+                let ax = Math.abs(this.a * Math.cos(rab))
+                let ay = Math.abs(this.a * Math.sin(rab))
+                ax = option.tx > option.x ? ax : -ax
+                ay = option.ty > option.y ? ay : -ay
                 // 模拟能量损耗，粒子才会减速
-                option.vx = (option.vx + ax*this.tickTime)*0.95
-                option.vy = (option.vy + ay*this.tickTime)*0.95
-                option.x = option.vx*this.tickTime
-                option.y = option.vy*this.tickTime
+                option.vx = (option.vx + ax * this.tickTime) * 0.95
+                option.vy = (option.vy + ay * this.tickTime) * 0.95
+                option.x += option.vx * this.tickTime
+                option.y += option.vy * this.tickTime
                 // 检测粒子当前距离和目标距离是否连续10次都小于设置的最小距离，是则看作静止
-                if(Math.abs(option.tx - option.x)<=this.checkLength && Math.abs(option.ty - option.y)<=this.checkLength){
+                if ((Math.abs(option.tx - option.x) < this.checkLength) && (Math.abs(option.ty - option.y) < this.checkLength)) {
                     option.checkTimes++
-                    if(option.checkTimes>=this.maxCheckTimes){
+                    if (option.checkTimes >= this.maxCheckTimes) {
                         option.stop = true
                     }
                 } else {
@@ -143,6 +155,32 @@
                 }
             }
         }
+        animationPoint(option) {
+            this.pointmove(option)
+            this.drawColor(option)
+        }
+        initAnimat() {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+            this.stats.update()
+            this.dots.sort(function (a, b) {
+                return a.tx - b.tx;
+            });
+            if (this.animations.length < this.dots.length) {
+                if (this.end > this.dots.length - 1) {
+                    this.end = this.dots.length - 1
+                }
+                this.animations = this.animations.concat(this.dots.slice(this.start, this.end))
+                this.start += this.addNum
+                this.end += this.addNum
+            }
+            this.animations.forEach(element => {
+                this.animationPoint(element)
+            });
+            window.requestAnimationFrame(() => {
+                this.initAnimat()
+            })
+        }
+
     }
     let canvasAni = new init()
 </script>
