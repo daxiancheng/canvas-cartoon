@@ -6,14 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>动起来canvas</title>
+    <script src="./public/stats.min.js"></script>
 </head>
 
 <body>
     <div style="display: flex;justify-content: center;">
-        <canvas id="canvas"><img src="./img/orangutan.png" alt="" id="imga"></canvas>
+        <canvas id="canvas"><img src="./img/chengzi.png" alt="" id="imga"></canvas>
     </div>
 </body>
-<script src="./public/stats.min.js"></script>
+
 <script>
 
     class init {
@@ -41,7 +42,6 @@
             this.stats.domElement.style.right = '0px';
             this.stats.domElement.style.top = '0px';
             document.body.appendChild(this.stats.domElement);
-            this.initImg()
             this.initImg()
         }
         initImg() {
