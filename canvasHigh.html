@@ -11,7 +11,7 @@
 
 <body>
     <div style="display: flex;justify-content: center;">
-        <canvas id="canvas"><img src="./img/chengzi.png" alt="" id="imga"></canvas>
+        <canvas id="canvas"><img src="./img/orangutan.png" alt="" id="imga"></canvas>
     </div>
 </body>
 
@@ -28,20 +28,21 @@
             this.pointSize = 2
             this.maxCheckTimes = 10
             this.checkLength = 5
-            // 合加速度的绝对值
-            this.a = 1500
             this.oldColor = ''
             // 每一帧的毫秒数
             this.tickTime = 16 / 1000
             this.start = 0
             this.end = 100
             this.addNum = 100
+            // 鼠标移动的圆半径
+            this.mouseRadius = 20
             this.stats = new Stats();
             this.stats.setMode(0);
             this.stats.domElement.style.position = 'absolute';
             this.stats.domElement.style.right = '0px';
             this.stats.domElement.style.top = '0px';
             document.body.appendChild(this.stats.domElement);
+            this.mouseListener()
             this.initImg()
         }
         initImg() {
@@ -54,6 +55,18 @@
                 this.getimgData()
                 this.initAnimat()
             }
+        }
+        mouseListener() {
+            this.canvas.addEventListener('mouseover',(e) => {
+                console.log('e.clientX', e.clientX)
+                console.log('e.target', e.target.getBoundingClientRect().left)
+                this.mouseX = e.clientX - e.target.getBoundingClientRect().left
+                this.mouseY = e.clientY - e.target.getBoundingClientRect().top
+            })
+            // this.canvas.addEventListener('mouseleave',(e) => {
+            //     this.mouseX = null
+            //     this.mouseY = null
+            // })
         }
         getimgData() {
             let imgdata = this.ctx.getImageData((this.canvas.width - this.img.width) / 2, (this.canvas.height - this.img.height) / 2, this.img.width, this.img.height)
@@ -115,6 +128,7 @@
                 vy: option.vy,
                 color: option.color,
                 checkTimes: 0,
+                a: 1500,
                 stop: false
             }
         }
@@ -136,8 +150,8 @@
                 // 算出水平方向夹角弧度值,x = tant,则t = Math.atanx
                 // 反正切和余切，傻傻搞不清楚...
                 let rab = Math.atan(sy / sx)
-                let ax = Math.abs(this.a * Math.cos(rab))
-                let ay = Math.abs(this.a * Math.sin(rab))
+                let ax = Math.abs(option.a * Math.cos(rab))
+                let ay = Math.abs(option.a * Math.sin(rab))
                 ax = option.tx > option.x ? ax : -ax
                 ay = option.ty > option.y ? ay : -ay
                 // 模拟能量损耗，粒子才会减速
@@ -156,9 +170,43 @@
                 }
             }
         }
+        pointMouse(option){
+            if (!this.mouseX) {
+                // option.tx = option.ex
+                // option.ty = option.ey
+                // option.a = 1500
+                return
+            }
+            option.stop = false
+            option.checkTimes = 0
+            // 鼠标与粒子的距离
+            let distance = Math.sqrt((Math.pow(this.mouseX - option.x,2)+Math.pow(this.mouseY - option.y,2)))
+            
+            let dif = distance - this.mouseRadius
+            if (dif < 0) {
+                console.log('this.mouseX', this.mouseX)
+                console.log('option.x', option.x)
+                let rab = Math.atan((this.mouseY - option.y)/(this.mouseX - option.x))
+                let dx = Math.abs(dif*Math.cos(rab))
+                let dy = Math.abs(dif*Math.sin(rab))
+                dx = option.x > this.mouseX ? dx : -dx
+                dy = option.y > this.mouseY ? dy : -dy
+                option.tx = option.x + dx
+                option.ty = option.y + dy
+                option.a = 2000 + 1000*(distance/this.mouseRadius)
+            } else {
+                console.log('dif', dif)
+                console.log('this.mouseX', this.mouseX)
+                console.log('option.x', option.x)
+                option.tx = option.ex
+                option.ty = option.ey
+                option.a = 1500
+            }
+        }
         animationPoint(option) {
             this.pointmove(option)
             this.drawColor(option)
+            this.pointMouse(option)
         }
         initAnimat() {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
