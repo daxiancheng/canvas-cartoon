@@ -1,167 +1,244 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
-    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动起来canvas</title>
     <style>
-        #cas{
-            display: block;
-            border:1px solid;
-            margin:auto;
+        body {
+            background-color: #ddd;
+
         }
     </style>
-    <script>
-        window.onload = function(){
-            canvas = document.getElementById("cas");
-            context = canvas.getContext('2d');
-            focallength = 250;
-
-            var dots = getimgData(document.getElementById('name').value);;
-            var pause = false;
-            initAnimate();
-            function initAnimate(){
-                dots.forEach(function(){
-                    this.x = Math.random()*canvas.width;
-                    this.y = Math.random()*canvas.height;
-                    this.z = Math.random()*focallength*2 - focallength;
-
-                    this.tx = Math.random()*canvas.width;
-                    this.ty = Math.random()*canvas.height;
-                    this.tz = Math.random()*focallength*2 - focallength;
-                    this.paint();
-                });
-                animate();
-            }
-
-            //计算帧速率
-            var lastTime;
-            var derection = true;
-            function animate(){
-                animateRunning = true;
-                var thisTime = +new Date();
-                context.clearRect(0,0,canvas.width , canvas.height);
-                dots.forEach(function(){
-                    var dot = this;
-                    if(derection){
-                        if (Math.abs(dot.dx - dot.x) < 0.1 && Math.abs(dot.dy - dot.y) < 0.1 && Math.abs(dot.dz - dot.z)<0.1) {
-                            dot.x = dot.dx;
-                            dot.y = dot.dy;
-                            dot.z = dot.dz;
-                            if(thisTime - lastTime > 300) derection = false;
-                        } else {
-                            dot.x = dot.x + (dot.dx - dot.x) * 0.1;
-                            dot.y = dot.y + (dot.dy - dot.y) * 0.1;
-                            dot.z = dot.z + (dot.dz - dot.z) * 0.1;
-                            lastTime = +new Date()
-                        }
-                    }
-                    else {
-                        if (Math.abs(dot.tx - dot.x) < 0.1 && Math.abs(dot.ty - dot.y) < 0.1 && Math.abs(dot.tz - dot.z)<0.1) {
-                            dot.x = dot.tx;
-                            dot.y = dot.ty;
-                            dot.z = dot.tz;
-                            pause = true;
-                        } else {
-                            dot.x = dot.x + (dot.tx - dot.x) * 0.1;
-                            dot.y = dot.y + (dot.ty - dot.y) * 0.1;
-                            dot.z = dot.z + (dot.tz - dot.z) * 0.1;
-                            pause = false;
-                        }
-                    }
-                    dot.paint();
-                });
-                if(!pause) {
-                    if("requestAnimationFrame" in window){
-                        requestAnimationFrame(animate);
-                    }
-                    else if("webkitRequestAnimationFrame" in window){
-                        webkitRequestAnimationFrame(animate);
-                    }
-                    else if("msRequestAnimationFrame" in window){
-                        msRequestAnimationFrame(animate);
-                    }
-                    else if("mozRequestAnimationFrame" in window){
-                        mozRequestAnimationFrame(animate);
-                    }
-                }
-            }
-
-            document.getElementById('startBtn').onclick = function(){
-                if(!pause) return;
-                dots = getimgData(document.getElementById('name').value);
-                derection=true;
-                pause = false;
-                initAnimate();
-            }
-        }
-
-        Array.prototype.forEach = function(callback){
-            for(var i=0;i<this.length;i++){
-                callback.call(this[i]);
-            }
-        }
-
-        function getimgData(text){
-            drawText(text);
-            var imgData = context.getImageData(0,0,canvas.width , canvas.height);
-            context.clearRect(0,0,canvas.width , canvas.height);
-            var dots = [];
-            for(var x=0;x<imgData.width;x+=6){
-                for(var y=0;y<imgData.height;y+=6){
-                    var i = (y*imgData.width + x)*4;
-                    if(imgData.data[i] >= 128){
-                        var dot = new Dot(x-3 , y-3 , 0 , 3);
-                        dots.push(dot);
-                    }
-                }
-            }
-            return dots;
-        }
-
-        function drawText(text){
-            context.save()
-            context.font = "200px 微软雅黑 bold";
-            context.fillStyle = "rgba(168,168,168,1)";
-            context.textAlign = "center";
-            context.textBaseline = "middle";
-            context.fillText(text , canvas.width/2 , canvas.height/2);
-            context.restore();
-        }
-
-
-        var Dot = function(centerX , centerY , centerZ , radius){
-            this.dx = centerX;
-            this.dy = centerY;
-            this.dz = centerZ;
-            this.tx = 0;
-            this.ty = 0;
-            this.tz = 0;
-            this.z = centerZ;
-            this.x = centerX;
-            this.y = centerY;
-            this.radius = radius;
-        }
-
-        Dot.prototype = {
-            paint:function(){
-                context.save();
-                context.beginPath();
-                var scale = focallength/(focallength + this.z);
-                context.arc(canvas.width/2 + (this.x-canvas.width/2)*scale , canvas.height/2 + (this.y-canvas.height/2) * scale, this.radius*scale , 0 , 2*Math.PI);
-                context.fillStyle = "rgba(50,50,50,"+ scale +")";
-                context.fill()
-                context.restore();
-            }
-        }
-    </script>
-    <title>操控字体的数据</title>
+    <script src="./public/stats.min.js"></script>
 </head>
+
 <body>
-    <div >
-        <canvas id='cas' width="1000" height="500">浏览器不支持canvas</canvas>
-        <div style="width:150px;margin:10px auto">
-            <input type="text" name="" id="name" style="width:80px;" value="成焕兴"><button id="startBtn">开始</button>
-            <a href="./canvas.html">canvas</a>
-        </div>
+    <div style="display: flex;justify-content: center;">
+        <canvas id="canvas"><img src="./img/chengzi.png" alt="" id="imga"></canvas>
     </div>
 </body>
+
+<script>
+
+    class init {
+        constructor() {
+            this.canvas = document.querySelector('#canvas')
+            this.canvas.width = window.innerWidth * 0.8
+            this.canvas.height = window.innerHeight * 0.8
+            this.ctx = canvas.getContext('2d')
+            this.dots = []
+            this.animations = []
+            this.pointSize = 3
+            this.maxCheckTimes = 10
+            this.checkLength = 6
+            this.oldColor = ''
+            // 每一帧的毫秒数
+            this.tickTime = 16 / 1000
+            this.start = 0
+            this.end = 100
+            this.addNum = 100
+            // 鼠标移动的圆半径
+            this.mouseRadius = 40
+            this.stats = new Stats();
+            this.stats.setMode(0);
+            this.stats.domElement.style.position = 'absolute';
+            this.stats.domElement.style.right = '0px';
+            this.stats.domElement.style.top = '0px';
+            document.body.appendChild(this.stats.domElement);
+            this.mouseListener()
+            this.initImg()
+        }
+        initImg() {
+            this.img = document.querySelector('#imga')
+            this.img.onload = () => {
+                let canvasWidth = this.canvas.width * 0.6
+                let width = this.img.width
+                this.img.width = (width > canvasWidth) ? canvasWidth : width
+                this.ctx.drawImage(this.img, (this.canvas.width - this.img.width) / 2, (this.canvas.height - this.img.height) / 2, this.img.width, this.img.height)
+                this.getimgData()
+                this.initAnimat()
+            }
+        }
+        mouseListener() {
+            this.canvas.addEventListener('mousemove', (e) => {
+                this.mouseX = e.clientX - e.target.getBoundingClientRect().left
+                this.mouseY = e.clientY - e.target.getBoundingClientRect().top
+            })
+            this.canvas.addEventListener('mouseleave', (e) => {
+                this.mouseX = null
+                this.mouseY = null
+            })
+        }
+        getimgData() {
+            let imgdata = this.ctx.getImageData((this.canvas.width - this.img.width) / 2, (this.canvas.height - this.img.height) / 2, this.img.width, this.img.height)
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+            for (let x = 0; x < imgdata.width; x += this.pointSize) {
+                for (let y = 0; y < imgdata.height; y += this.pointSize) {
+                    let i = (y * imgdata.width + x) * 4
+                    if (imgdata.data[i + 3] >= 125) {
+                        let color = 'rgba(' + imgdata.data[i] + ',' + imgdata.data[i + 1] + ',' + imgdata.data[i + 2] + ',' + imgdata.data[i + 3] + ')'
+                        let randomX = x + Math.random() * 20
+                        let vx = -Math.random() * 200 + 400
+                        let randomY = y - Math.random() * 40 + 20
+                        let vy
+                        if (randomY > y) {
+                            vy = -Math.random() * 300
+                        } else {
+                            vy = Math.random() * 300
+                        }
+                        this.dots.push(this.pointProto({
+                            x: (this.canvas.width - this.img.width) / 2 + randomX,
+                            y: (this.canvas.height - this.img.height) / 2 + randomY,
+                            ex: (this.canvas.width - this.img.width) / 2 + x,
+                            ey: (this.canvas.height - this.img.height) / 2 + y,
+                            tx: (this.canvas.width - this.img.width) / 2 + x,
+                            ty: (this.canvas.height - this.img.height) / 2 + y,
+                            vx,
+                            vy,
+                            color
+                        }))
+                        this.drawColor(this.dots[this.dots.length - 1])
+                    }
+                }
+            }
+
+        }
+        /**
+         * x,y 当前的位置
+         * ex,ey 原始的位置
+         * tx,ty 目标位置
+         * vx 水平速度
+         * vy 垂直速度
+         * a 和加速度
+         * color 粒子颜色
+         * maxCheckTimes 判断粒子是否静止次数
+         * checkLength 判断粒子是否静止距离
+         * checkTimes 当前的检查次数
+         * stop 是否停止
+        */
+        pointProto(option) {
+            return {
+                x: option.x,
+                y: option.y,
+                ex: option.ex,
+                ey: option.ey,
+                tx: option.tx,
+                ty: option.ty,
+                vx: option.vx,
+                vy: option.vy,
+                color: option.color,
+                checkTimes: 0,
+                a: 1500,
+                stop: false
+            }
+        }
+        drawColor(option) {
+            if (this.oldColor != option.color) {
+                this.ctx.fillStyle = option.color
+                this.oldColor = option.color
+            }
+            this.ctx.fillRect(option.x - this.pointSize / 2, option.y - this.pointSize / 2, this.pointSize, this.pointSize)
+        }
+        // 设置粒子的x,y
+        pointmove(option) {
+            if (option.stop) {
+                option.x = option.tx
+                option.y = option.ty
+            } else {
+                let sx = Math.abs(option.tx - option.x)
+                let sy = Math.abs(option.ty - option.y)
+                // 算出水平方向夹角弧度值,x = tant,则t = Math.atanx
+                // 反正切和余切，傻傻搞不清楚...
+                let rab = Math.atan(sy / sx)
+                let ax = Math.abs(option.a * Math.cos(rab))
+                let ay = Math.abs(option.a * Math.sin(rab))
+                ax = option.tx > option.x ? ax : -ax
+                ay = option.ty > option.y ? ay : -ay
+                // 模拟能量损耗，粒子才会减速
+                option.vx = (option.vx + ax * this.tickTime) * 0.95
+                option.vy = (option.vy + ay * this.tickTime) * 0.95
+                option.x += option.vx * this.tickTime
+                option.y += option.vy * this.tickTime
+                // 检测粒子当前距离和目标距离是否连续10次都小于设置的最小距离，是则看作静止
+                if ((Math.abs(option.tx - option.x) < this.checkLength) && (Math.abs(option.ty - option.y) < this.checkLength)) {
+                    option.checkTimes++
+                    if (option.checkTimes >= this.maxCheckTimes) {
+                        option.stop = true
+                    }
+                } else {
+                    option.checkTimes = 0
+                }
+            }
+        }
+        pointMouse(option) {
+            if (!this.mouseX) {
+                this.goBack(option)
+                return
+            }
+            // 鼠标与粒子的距离
+            let distance = Math.sqrt((Math.pow(this.mouseX - option.x, 2) + Math.pow(this.mouseY - option.y, 2)))
+
+            let dif = distance - this.mouseRadius
+            if (dif < 0) {
+                option.stop = false
+                option.checkTimes = 0
+                let rab = Math.atan((this.mouseY - option.y) / (this.mouseX - option.x))
+                let dx = Math.abs(dif * Math.cos(rab))
+                let dy = Math.abs(dif * Math.sin(rab))
+                dx = option.x > this.mouseX ? dx : -dx
+                dy = option.y > this.mouseY ? dy : -dy
+                option.tx = option.x + dx
+                option.ty = option.y + dy
+                option.a = 2000 + 1000 * (distance / this.mouseRadius)
+            } else {
+                this.goBack(option)
+            }
+        }
+        goBack(option) {
+            if (!(option.tx === option.ex && option.ty === option.ey)) {
+                option.stop = false;
+                option.checkTimes = 0;
+                option.tx = option.ex;
+                option.ty = option.ey;
+                option.a = 1500;
+            }
+        }
+        animationPoint(option) {
+            this.pointmove(option)
+            this.drawColor(option)
+            this.pointMouse(option)
+        }
+        initAnimat() {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+            this.stats.update()
+            this.dots.sort(function (a, b) {
+                return a.tx - b.tx;
+            });
+            if (this.animations.length < this.dots.length) {
+                if (this.end > this.dots.length - 1) {
+                    this.end = this.dots.length - 1
+                }
+                this.animations = this.animations.concat(this.dots.slice(this.start, this.end))
+                this.start += this.addNum
+                this.end += this.addNum
+            }
+            this.animations.forEach(element => {
+                this.animationPoint(element)
+            });
+            this.AnimationFrame(() => {
+                this.initAnimat()
+            })
+        }
+        // 帧动画渲染兼容
+        AnimationFrame(callback) {
+            let animateFr = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || window.setTimeout
+            animateFr(callback)
+        }
+    }
+    new init()
+</script>
+
 </html>
