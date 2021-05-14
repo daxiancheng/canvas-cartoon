@@ -54,23 +54,37 @@
         initImg() {
             this.img = document.querySelector('#imga')
             this.img.onload = () => {
-                let canvasWidth = this.canvas.width * 0.6
-                let width = this.img.width
-                this.img.width = (width > canvasWidth) ? canvasWidth : width
+                let canvasHeight = this.canvas.height * 0.5
+                // let width = this.img.width
+                this.img.style.height = canvasHeight = 'px'
                 this.ctx.drawImage(this.img, (this.canvas.width - this.img.width) / 2, (this.canvas.height - this.img.height) / 2, this.img.width, this.img.height)
                 this.getimgData()
                 this.initAnimat()
             }
         }
         mouseListener() {
-            this.canvas.addEventListener('mousemove', (e) => {
-                this.mouseX = e.clientX - e.target.getBoundingClientRect().left
-                this.mouseY = e.clientY - e.target.getBoundingClientRect().top
-            })
-            this.canvas.addEventListener('mouseleave', (e) => {
-                this.mouseX = null
-                this.mouseY = null
-            })
+            const sUserAgent = navigator.userAgent.toLowerCase()
+            console.log(sUserAgent)
+            if (sUserAgent.indexOf('windows') > -1) {
+                this.canvas.addEventListener('mousemove', (e) => {
+                    this.mouseX = e.clientX - e.target.getBoundingClientRect().left
+                    this.mouseY = e.clientY - e.target.getBoundingClientRect().top
+                })
+                this.canvas.addEventListener('mouseleave', (e) => {
+                    this.mouseX = null
+                    this.mouseY = null
+                })
+            } else {
+                this.canvas.addEventListener('touchmove', (e) => {
+                    this.mouseX = e.touches[0].clientX - e.target.getBoundingClientRect().left
+                    this.mouseY = e.touches[0].clientY - e.target.getBoundingClientRect().top
+                })
+                this.canvas.addEventListener('touchend', (e) => {
+                    this.mouseX = null
+                    this.mouseY = null
+                })
+            }
+
         }
         getimgData() {
             let imgdata = this.ctx.getImageData((this.canvas.width - this.img.width) / 2, (this.canvas.height - this.img.height) / 2, this.img.width, this.img.height)
