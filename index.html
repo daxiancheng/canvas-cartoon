@@ -5,19 +5,39 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>动起来canvas</title>
+    <title>是柠檬呀Zz</title>
+    <link rel="shortcut icon" href="./img/lemon.png">
     <style>
         body {
-            background-color: #ddd;
-
+            /* background-image: url('./img/8.png');
+            background-repeat:no-repeat;
+            background-size:cover; */
+            background-color: #ccc;
+            padding: 0;
+            margin: 0;
+        }
+        .bgcontainer{
+            background-image: url('./img/bglove.png');
+            background-repeat:no-repeat;
+            background-size: cover;
+            width: 293px;
+            height: 400px;
+            border-radius: 6px;
+            border: 1px solid #fff;
         }
     </style>
     <script src="./public/stats.min.js"></script>
 </head>
 
 <body>
-    <div style="display: flex;justify-content: center;">
-        <canvas id="canvas"><img src="./img/chengzi.png" alt="" id="imga"></canvas>
+    <!-- 触发bfc -->
+    <div style="display: flex;justify-content: center;align-items: center;height: 100vh;">
+        <div style="overflow: hidden;">
+            <div style="width: 293px;height: 400px;position: absolute;">
+                <canvas id="canvas" width="293" height="400"><img src="./img/1.png" alt="" id="imga"></canvas>
+            </div>
+            <div class="bgcontainer"></div>
+        </div>
     </div>
 </body>
 
@@ -26,14 +46,14 @@
     class init {
         constructor() {
             this.canvas = document.querySelector('#canvas')
-            this.canvas.width = window.innerWidth * 0.8
-            this.canvas.height = window.innerHeight * 0.8
+            // this.canvas.width = window.innerWidth
+            // this.canvas.height = window.innerHeight
             this.ctx = canvas.getContext('2d')
             this.dots = []
             this.animations = []
             this.pointSize = 3
             this.maxCheckTimes = 10
-            this.checkLength = 6
+            this.checkLength = 7
             this.oldColor = ''
             // 每一帧的毫秒数
             this.tickTime = 16 / 1000
@@ -54,17 +74,18 @@
         initImg() {
             this.img = document.querySelector('#imga')
             this.img.onload = () => {
-                let canvasHeight = this.canvas.height * 0.5
+                // let canvasHeight = this.canvas.height * 0.2
                 // let width = this.img.width
-                this.img.style.height = canvasHeight = 'px'
-                this.ctx.drawImage(this.img, (this.canvas.width - this.img.width) / 2, (this.canvas.height - this.img.height) / 2, this.img.width, this.img.height)
+                // this.img.style.height = canvasHeight = 'px'
+                this.imgPositionY = (this.canvas.height - this.img.height) / 2
+                this.imgPositionX = (this.canvas.width - this.img.width) / 2
+                this.ctx.drawImage(this.img, this.imgPositionX, this.imgPositionY, this.img.width, this.img.height)
                 this.getimgData()
                 this.initAnimat()
             }
         }
         mouseListener() {
             const sUserAgent = navigator.userAgent.toLowerCase()
-            console.log(sUserAgent)
             if (sUserAgent.indexOf('windows') > -1) {
                 this.canvas.addEventListener('mousemove', (e) => {
                     this.mouseX = e.clientX - e.target.getBoundingClientRect().left
@@ -78,16 +99,18 @@
                 this.canvas.addEventListener('touchmove', (e) => {
                     this.mouseX = e.touches[0].clientX - e.target.getBoundingClientRect().left
                     this.mouseY = e.touches[0].clientY - e.target.getBoundingClientRect().top
+                    e.preventDefault()
                 })
                 this.canvas.addEventListener('touchend', (e) => {
                     this.mouseX = null
                     this.mouseY = null
+                    e.preventDefault()
                 })
             }
 
         }
         getimgData() {
-            let imgdata = this.ctx.getImageData((this.canvas.width - this.img.width) / 2, (this.canvas.height - this.img.height) / 2, this.img.width, this.img.height)
+            let imgdata = this.ctx.getImageData(this.imgPositionX, this.imgPositionY, this.img.width, this.img.height)
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
             for (let x = 0; x < imgdata.width; x += this.pointSize) {
                 for (let y = 0; y < imgdata.height; y += this.pointSize) {
@@ -104,12 +127,12 @@
                             vy = Math.random() * 300
                         }
                         this.dots.push(this.pointProto({
-                            x: (this.canvas.width - this.img.width) / 2 + randomX,
-                            y: (this.canvas.height - this.img.height) / 2 + randomY,
-                            ex: (this.canvas.width - this.img.width) / 2 + x,
-                            ey: (this.canvas.height - this.img.height) / 2 + y,
-                            tx: (this.canvas.width - this.img.width) / 2 + x,
-                            ty: (this.canvas.height - this.img.height) / 2 + y,
+                            x: this.imgPositionX + randomX,
+                            y: this.imgPositionY + randomY,
+                            ex: this.imgPositionX + x,
+                            ey: this.imgPositionY + y,
+                            tx: this.imgPositionX + x,
+                            ty: this.imgPositionY + y,
                             vx,
                             vy,
                             color
