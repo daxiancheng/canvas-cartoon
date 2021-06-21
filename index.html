@@ -271,8 +271,13 @@
         }
         // 帧动画渲染兼容
         AnimationFrame(callback) {
-            let animateFr = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || window.setTimeout
-            animateFr(callback)
+            let animateFr = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame
+            if (animateFr) {
+                animateFr(callback)
+            } else {
+                window.setTimeout(callback, 16)
+            }
+            
         }
     }
     new init()
