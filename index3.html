@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成图片例子</title>
+</head>
+
+<body>
+    <div style="display: flex;justify-content: center;">
+        <div style="width: 800px;display: flex;justify-content: space-around;align-items: center;">
+            <img src="./img/lemon.png" id="imga" width="200" height="200">
+            <canvas width="400" height="400" style="border: 1px solid #999;"></canvas>
+        </div>
+    </div>
+</body>
+<script src="./public/stats.min.js"></script>
+<script>
+    class canvasAnimate {
+        constructor() {
+            this.canvas = document.querySelector('canvas')
+            this.ctx = this.canvas.getContext('2d')
+            this.pointSize = 6
+            this.particleArray = []
+            this.initImg()
+        }
+        initImg() {
+            let img = document.querySelector('#imga')
+            img.onload = () => {
+                this.imgx = (this.canvas.width - img.width) / 2;
+                this.imgy = (this.canvas.height - img.height) / 2;
+                this.ctx.drawImage(img, this.imgx, this.imgy, img.width, img.height)
+                let imgData = this.ctx.getImageData(this.imgx, this.imgy, img.width, img.height)
+                console.log('imgData', imgData)
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                for (let x = 0; x < imgData.width; x += this.pointSize) {
+                    for (let y = 0; y < imgData.height; y += this.pointSize) {
+                        // 判断rgba的a值, 过滤掉不透明点
+                        let i = (y * imgData.width + x) * 4
+                        if (imgData.data[i + 3] >= 125) {
+                            let color = "rgba(" + imgData.data[i] + "," + imgData.data[i + 1] + "," + imgData.data[i + 2] + "," + imgData.data[i + 3] + ")";
+                            let a = this.imgx + x
+                            let b = this.imgy + y
+                            let point = {}
+                            // let point = this.Particle(a, b, color)
+                            point.x = a
+                            point.y = b
+                            point.color = color
+                            // this.particleArray.push(point)
+                            this.drawColor(point)
+                        }
+                    }
+                }
+            }
+        }
+        drawColor(option) {
+            if (this.oldColor != option.color) {
+                this.ctx.fillStyle = option.color
+                this.oldColor = option.color
+            }
+            this.ctx.fillRect(option.x - this.pointSize / 2, option.y - this.pointSize / 2, this.pointSize, this.pointSize)
+        }
+    }
+    new canvasAnimate()
+</script>
+
+</html>

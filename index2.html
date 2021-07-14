@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>平抛运动</title>
+</head>
+<body>
+    <canvas width='500' height='500' id='canvasa' style='border:1px solid'></canvas>
+</body>
+<script>
+//let canvas = document.getElementById('canvasa');
+//let ctx = this.canvas.getContext('2d');
+// // ctx.beginPath();
+//   ctx.moveTo(25, 25);
+//   ctx.lineTo(200, 25);
+// //   ctx.lineTo(25, 105);
+// ctx.strokeStyle = 'red'
+//   ctx.stroke();
+
+// ctx.beginPath(); 
+// ctx.arc(60,90,40,0,2*Math.PI); 
+// ctx.fillStyle = 'pink'
+// ctx.fill(); 
+
+
+// ctx.fillStyle = 'green'
+// ctx.fillRect(25, 150, 10, 10)
+
+class init {
+  constructor(){
+    this.canvas = document.getElementById('canvasa');
+    this.ctx = this.canvas.getContext('2d');
+    this.ctx.fillStyle = 'green'
+    this.x = 20
+    this.y = 20
+    this.ctx.fillRect(this.x, this.y, 10, 10)
+    this.V0 = 100
+    this.a = 60
+    this.t0 = 0
+    this.t = 16/1000
+    this.initAnimat()
+  }
+
+  pointMove(){
+    this.t0 += this.t
+    this.x = this.V0*this.t0 + 20
+    this.y = 0.5*this.a*(this.t0*this.t0) + 20
+    if(this.y>400 || this.x>400){
+      this.x = 20
+      this.y = 20
+      this.t0 = 0
+    }
+    this.drawPoint()
+  }
+  drawPoint(){
+    this.ctx.fillRect(this.x, this.y, 10, 10)
+  }
+  initAnimat(){
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+    this.pointMove()
+    window.requestAnimationFrame(()=>{
+      this.initAnimat()
+    })
+  }
+}
+
+new init()
+</script>
+</html>
