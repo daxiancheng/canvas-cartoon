@@ -116,7 +116,8 @@
                 for (let y = 0; y < imgdata.height; y += this.pointSize) {
                     let i = (y * imgdata.width + x) * 4
                     if (imgdata.data[i + 3] >= 125) {
-                        let color = 'rgba(' + imgdata.data[i] + ',' + imgdata.data[i + 1] + ',' + imgdata.data[i + 2] + ',' + imgdata.data[i + 3] + ')'
+                        // let color = 'rgba(' + imgdata.data[i] + ',' + imgdata.data[i + 1] + ',' + imgdata.data[i + 2] + ',' + imgdata.data[i + 3] + ')'
+                        let color = '#fff'
                         let randomX = x + Math.random() * 20
                         let vx = -Math.random() * 200 + 400
                         let randomY = y - Math.random() * 40 + 20

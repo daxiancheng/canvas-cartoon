@@ -34,25 +34,25 @@
                 this.ctx.drawImage(img, this.imgx, this.imgy, img.width, img.height)
                 let imgData = this.ctx.getImageData(this.imgx, this.imgy, img.width, img.height)
                 console.log('imgData', imgData)
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                for (let x = 0; x < imgData.width; x += this.pointSize) {
-                    for (let y = 0; y < imgData.height; y += this.pointSize) {
-                        // 判断rgba的a值, 过滤掉不透明点
-                        let i = (y * imgData.width + x) * 4
-                        if (imgData.data[i + 3] >= 125) {
-                            let color = "rgba(" + imgData.data[i] + "," + imgData.data[i + 1] + "," + imgData.data[i + 2] + "," + imgData.data[i + 3] + ")";
-                            let a = this.imgx + x
-                            let b = this.imgy + y
-                            let point = {}
-                            // let point = this.Particle(a, b, color)
-                            point.x = a
-                            point.y = b
-                            point.color = color
-                            // this.particleArray.push(point)
-                            this.drawColor(point)
-                        }
-                    }
-                }
+                // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                // for (let x = 0; x < imgData.width; x += this.pointSize) {
+                //     for (let y = 0; y < imgData.height; y += this.pointSize) {
+                //         // 判断rgba的a值, 过滤掉不透明点
+                //         let i = (y * imgData.width + x) * 4
+                //         if (imgData.data[i + 3] >= 125) {
+                //             let color = "rgba(" + imgData.data[i] + "," + imgData.data[i + 1] + "," + imgData.data[i + 2] + "," + imgData.data[i + 3] + ")";
+                //             let a = this.imgx + x
+                //             let b = this.imgy + y
+                //             let point = {}
+                //             // let point = this.Particle(a, b, color)
+                //             point.x = a
+                //             point.y = b
+                //             point.color = color
+                //             // this.particleArray.push(point)
+                //             this.drawColor(point)
+                //         }
+                //     }
+                // }
             }
         }
         drawColor(option) {
